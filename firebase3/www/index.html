@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="format-detection" content="telephone=no">
+        <meta name="msapplication-tap-highlight" content="no">
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+        <title>Cadastro</title>
+
+		<script src="https://www.gstatic.com/firebasejs/7.4.0/firebase-app.js"></script>
+		<script src="https://www.gstatic.com/firebasejs/7.4.0/firebase-analytics.js"></script>
+
+		<script src="/__/firebase/7.4.0/firebase-app.js"></script>
+		<script src="/__/firebase/7.4.0/firebase-analytics.js"></script>
+		<script src="/__/firebase/init.js"></script>
+
+    </head>
+    <body>
+
+        <h1>Cordova Firebase Email Auth</h1>
+
+        <fieldset>
+            <legend>Inscrever-se neste app</legend>
+            <label>Email</label><br/>
+            <input type="text" id="email"></input><br/>
+            <label>Senha</label><br/>
+            <input type="password" id="senha"></input><br/>
+            <button type="button" onclick="signup()">Inscrever-se</button>
+            <button type="button" onclick="mudarSenha()">Mudar Senha</button>
+            <button type="button" onclick="login()">Login</button><br/>
+        </fieldset>
+
+        <br/>
+
+        <fieldset>
+            <legend>Informacoes...</legend>
+            <button type="button" onclick="showCurrentUser()">Consulta Usuario Logado</button>
+            <Label id="lbUserLoggedIn"></Label><br/>
+            <button type="button" onclick="logout()">Sair</button><br/>
+        </fieldset>
+
+       
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+<script>
+
+// Initialize Firebase
+var fbConfig = {
+    apiKey: "AIzaSyAbUQjLb4MJQo_iX-BYKfq_eCSzoVBJyKs",
+    authDomain: "levi2-84988.firebaseapp.com",
+    databaseURL: "https://levi2-84988.firebaseio.com",
+    projectId: "levi2-84988",
+    storageBucket: "levi2-84988.appspot.com",
+    messagingSenderId: "814525185940",
+    appId: "1:814525185940:web:df137b21e5cc7d88a0d981",
+    measurementId: "G-GKTVJYKWYB"
+};
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////
+function currentUser(){
+    try{
+        let u = firebase.auth().currentUser;
+        return u.email;
+    }catch(e){
+        return e;
+    }
+    
+}
+
+function signup(){
+    let email = document.getElementById("email").value;
+    let senha = document.getElementById("senha").value;
+
+    alert("About to singup: email-> "+email+", senha->"+senha);
+    
+    if(email.length == 0) {
+        alert ("digite um email");
+        return false;
+    }
+    
+    if(senha.length == 0){
+        alert ("digite um uma senha");
+        return false;
+    }
+
+    firebase.auth().createUserWithEmailAndPassword(email, senha).catch(function(error) {
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        if(errorCode) alert(errorCode);
+        if(errorMessage) alert(errorMessage);
+    })
+
+    showCurrentUser();//update lbUserLoggedIn label
+}
+
+function login(){
+    console.log("function login(){...");
+    try{
+
+        let email = document.getElementById("email").value;
+        let senha = document.getElementById("senha").value;
+
+        alert("About to login: email-> "+email+", senha->"+senha);
+        
+        if(email.length == 0) {
+            alert ("digite um email");
+            return false;
+        }
+        
+        if(senha.length == 0){
+            alert ("digite um uma senha");
+            return false;
+        }
+        
+        firebase.auth().signInWithEmailAndPassword(email, senha).then(function(user){
+            console.log("firebase.auth().signInWithEmailAndPassword(email, senha).then(function(user){...");
+            showCurrentUser();//update lbUserLoggedIn label
+
+        }).catch(function(error) {
+            console.log("firebase.auth().signInWithEmailAndPassword(email, senha).catch(function(error) {...");
+            var errorCode = error.code;
+            var errorMessage = error.message;
+            
+            if (errorCode === 'auth/wrong-password') {
+                alert('Senha errada!');
+            } else {
+                alert(errorMessage);
+            }           
+        });
+                
+    }catch(e){
+        console.log(e);
+    }
+}
+
+function mudarSenha(){
+
+    var email = document.getElementById('email').value;
+    
+    firebase.auth().sendPasswordResetEmail(email).then(function() {
+        alert('Pedido de alteracao de senha enviado!');
+      }).catch(function(error) {
+        var errorCode = error.code;
+        var errorMessage = error.message;
+
+        if (errorCode == 'auth/invalid-email') {
+          alert("email informado invalido");
+        } else if (errorCode == 'auth/user-not-found') {
+          alert("email nao encontrado");
+        }
+      });
+}
+
+function logout(){
+    try{
+        firebase.auth().signOut();
+        showCurrentUser();//update lbUserLoggedIn label
+    }catch(e){
+        alert(e);
+    }
+}
+
+function showCurrentUser(){
+    console.log("function showCurrentUser(){...");
+    document.getElementById("lbUserLoggedIn").innerHTML = currentUser();
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function onLoadFunction(){
+    firebase.initializeApp(fbConfig);
+    showCurrentUser();//update lbUserLoggedIn label
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+var app = {
+    // Application Constructor
+    initialize: function() {
+        document.addEventListener('deviceready', this.onDeviceReady.bind(this), false);
+    },
+
+    onDeviceReady: function() {        
+        onLoadFunction();
+    }
+};
+
+app.initialize();
+
+</script>	
+    </body>
+</html>
